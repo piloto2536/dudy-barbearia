@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Gestão | Dudy Barbearia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body class="admin-body">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a class="brand" href="index.html" aria-label="Voltar ao site da Dudy Barbearia"><span class="brand-mark">DB</span><span>Dudy <b>barbearia</b></span></a>
+        <p>Gestão de agenda</p>
+      </header>
+      <section class="admin-login" id="admin-login">
+        <div><p class="eyebrow"><span></span> Acesso restrito</p><h1>SUA<br /><em>AGENDA.</em></h1><p>Entre para acompanhar os atendimentos e organizar os próximos dias.</p></div>
+        <form class="admin-login-card" id="login-form">
+          <label for="owner-email">E-mail</label><input id="owner-email" type="email" autocomplete="email" required />
+          <label for="owner-password">Senha</label><input id="owner-password" type="password" autocomplete="current-password" required />
+          <button class="btn" type="submit">Entrar <span>↗</span></button>
+          <p id="login-status" class="form-status" role="status"></p>
+        </form>
+      </section>
+      <section class="admin-dashboard" id="dashboard" hidden>
+        <div class="dashboard-bar"><div><p class="eyebrow"><span></span> Painel de controle</p><h1>AGENDA DA<br /><em>SEMANA.</em></h1></div><button id="logout-button" class="text-button" type="button">Sair</button></div>
+        <div class="dashboard-grid">
+          <aside class="calendar-card" aria-label="Calendário de atendimentos">
+            <div class="calendar-top"><button id="previous-month" class="calendar-nav" type="button" aria-label="Mês anterior">←</button><h2 id="calendar-month">Calendário</h2><button id="next-month" class="calendar-nav" type="button" aria-label="Próximo mês">→</button></div>
+            <div class="calendar-weekdays" aria-hidden="true"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+            <div class="calendar-days" id="calendar-days"></div>
+            <p class="calendar-help"><span></span> Dia com agendamentos</p>
+          </aside>
+          <section class="day-agenda">
+            <div class="agenda-heading"><p class="eyebrow">Atendimentos</p><h2 id="agenda-title">Selecione um dia</h2><p id="agenda-summary">Escolha uma data no calendário para ver os horários.</p></div>
+            <div id="appointments-list" class="appointments-list"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>

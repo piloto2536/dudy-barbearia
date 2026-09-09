@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, orderBy, query, runTransaction, where } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, query, runTransaction, where } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 // Cole aqui as credenciais do aplicativo Web criado no Firebase Console.
 const firebaseConfig = {
@@ -15,8 +14,7 @@ const firebaseConfig = {
 const slots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
 const $ = (selector) => document.querySelector(selector);
 const form = $("#booking-form"), dateInput = $("#booking-date"), timeSlots = $("#time-slots"), timeInput = $("#booking-time"), bookingStatus = $("#booking-status");
-let app, auth, db;
-let unsubscribeAppointments = null;
+let app, db;
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -29,7 +27,6 @@ function configured() { return firebaseConfig.apiKey !== "COLE_AQUI" && firebase
 
 if (configured()) {
   app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
   db = getFirestore(app);
 } else {
   showStatus(bookingStatus, "Sistema em modo de configuração. A agenda ficará online assim que o Firebase for conectado.", "error");
@@ -89,34 +86,3 @@ form.addEventListener("submit", async (event) => {
     await loadSlots();
   } finally { submit.disabled = false; }
 });
-
-$("#login-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const loginStatus = $("#login-status");
-  if (!configured()) { showStatus(loginStatus, "Conecte o Firebase para ativar o acesso do dono.", "error"); return; }
-  showStatus(loginStatus, "Entrando…");
-  try { await signInWithEmailAndPassword(auth, $("#owner-email").value, $("#owner-password").value); }
-  catch { showStatus(loginStatus, "E-mail ou senha inválidos.", "error"); }
-});
-
-function renderAppointments(items) {
-  const target = $("#appointments-list");
-  target.innerHTML = items.length ? items.map((item) => `<article class="appointment"><span class="appointment-time">${item.time}</span><div><h4>${escapeHtml(item.name)}</h4><p>${escapeHtml(item.service)} · ${escapeHtml(item.phone)}</p></div></article>`).join("") : '<p class="empty-appointments">Nenhum agendamento para hoje.</p>';
-}
-function escapeHtml(value) { const node = document.createElement("span"); node.textContent = value; return node.innerHTML; }
-function listenToToday() {
-  if (unsubscribeAppointments) unsubscribeAppointments();
-  const date = toDateValue(today);
-  $("#agenda-title").textContent = new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR", { day: "2-digit", month: "long" });
-  const appointments = query(collection(db, "appointments"), where("date", "==", date), orderBy("time"));
-  unsubscribeAppointments = onSnapshot(appointments, (snapshot) => renderAppointments(snapshot.docs.map((doc) => doc.data())), () => renderAppointments([]));
-}
-
-if (configured()) onAuthStateChanged(auth, async (user) => {
-  const login = $("#login-form"), dashboard = $("#dashboard");
-  if (!user) { login.hidden = false; dashboard.hidden = true; if (unsubscribeAppointments) unsubscribeAppointments(); return; }
-  const token = await user.getIdTokenResult(true);
-  if (!token.claims.email) { showStatus($("#login-status"), "Esta conta não tem acesso de administrador.", "error"); await signOut(auth); return; }
-  login.hidden = true; dashboard.hidden = false; listenToToday();
-});
-$("#logout-button").addEventListener("click", () => configured() && signOut(auth));
